@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carga Ganadera - Pozo del Carril</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Reset & Tipografía */
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      font-size: 12px;
+      line-height: 1.4;
+      padding: 10px;
+      margin: 0;
+    }
+    
+    /* Scrollbar estilizada */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* REGLA CRÍTICA: Asegurar que .hidden siempre oculte el elemento aun sin Tailwind */
+    .hidden { display: none !important; }
+
+    /* Barra de pestañas */
+    .tabs-nav {
+      display: flex;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 12px;
+      background-color: #ffffff;
+      border-radius: 8px 8px 0 0;
+      overflow-x: auto;
+      white-space: nowrap;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .tab-btn {
+      padding: 8px 11px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: #166534; background-color: #f0fdf4; }
+    .tab-btn.active {
+      border-bottom: 3px solid #166534;
+      color: #166534;
+      font-weight: 700;
+      background-color: #f0fdf4;
+    }
+
+    /* Formularios y Tarjetas */
+    form.card-form {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Grillas responsivas */
+    .grid { display: grid; }
+    .grid-cols-2 { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .grid-cols-3 { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+    /* Entradas y controles */
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 3px;
+    }
+    input[type="text"], input[type="date"], input[type="number"], select, textarea {
+      width: 100%;
+      font-size: 12px;
+      padding: 6px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+      background-color: #ffffff;
+      color: #1e293b;
+      font-family: inherit;
+      box-sizing: border-box;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #166534;
+      box-shadow: 0 0 0 2px #bbf7d0;
+    }
+    input[readonly], input[disabled] {
+      background-color: #f1f5f9 !important;
+      color: #64748b !important;
+      cursor: not-allowed;
+    }
+
+    /* Botón de Guardar */
+    .btn-submit {
+      width: 100%;
+      background-color: #166534;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      transition: background-color 0.15s ease, opacity 0.15s ease;
+    }
+    .btn-submit:hover { background-color: #14532d; }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* Mensajes y Alertas */
+    #alerta {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .alerta-exito { background-color: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .alerta-error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 p-3">
+
+  <!-- ENCABEZADO AGROGANADERO -->
+  <div class="bg-emerald-900 text-white p-3 rounded-lg shadow-sm mb-3 flex items-center justify-between">
+    <div>
+      <h1 class="text-base font-bold flex items-center gap-1.5">
+        <span>🐂</span> Pozo del Carril
+      </h1>
+      <p class="text-xs text-emerald-200">Gestión Angus Ciclo Completo</p>
+    </div>
+    <span class="text-xs bg-emerald-800 px-2 py-1 rounded text-emerald-100 font-mono font-semibold">v2.1</span>
+  </div>
+
+  <!-- NAVEGACIÓN POR PESTAÑAS -->
+  <div class="tabs-nav flex border-b border-gray-200 mb-3 text-xs bg-white rounded-t-lg shadow-xs overflow-x-auto">
+    <button onclick="cambiarPestana('fisico')" id="tab-fisico" class="tab-btn active px-3 py-2 whitespace-nowrap transition duration-150">🔄 Físico</button>
+    <button onclick="cambiarPestana('caravana')" id="tab-caravana" class="tab-btn px-3 py-2 whitespace-nowrap transition duration-150">🏷️ Caravana</button>
+    <button onclick="cambiarPestana('costos')" id="tab-costos" class="tab-btn px-3 py-2 whitespace-nowrap transition duration-150">💰 Costos</button>
+    <button onclick="cambiarPestana('comercial')" id="tab-comercial" class="tab-btn px-3 py-2 whitespace-nowrap transition duration-150">⚖️ Comercial</button>
+    <button onclick="cambiarPestana('financiero')" id="tab-financiero" class="tab-btn px-3 py-2 whitespace-nowrap transition duration-150">💵 Financiero</button>
+    <button onclick="cambiarPestana('gasto')" id="tab-gasto" class="tab-btn px-3 py-2 whitespace-nowrap transition duration-150">📑 Gasto</button>
+    <button onclick="cambiarPestana('campo')" id="tab-campo" class="tab-btn px-3 py-2 whitespace-nowrap transition duration-150">🌾 Campo</button>
+    <button onclick="cambiarPestana('contacto')" id="tab-contacto" class="tab-btn px-3 py-2 whitespace-nowrap transition duration-150">👥 Contacto</button>
+  </div>
+
+  <!-- MENSAJE DE ESTADO / ALERTA -->
+  <div id="alerta" class="hidden mb-3 p-2.5 text-xs rounded-lg transition-all duration-200"></div>
+
+  <!-- ===================================================================== -->
+  <!-- 1. FORMULARIO MOVIMIENTO FÍSICO -->
+  <!-- ===================================================================== -->
+  <form id="form-fisico" class="card-form space-y-3 bg-white p-3 rounded-lg shadow-xs border border-gray-100" style="display: flex;" onsubmit="enviarFisico(event)">
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Fecha</label>
+        <input type="date" id="fis-fecha" required class="w-full text-xs border rounded p-1.5 bg-gray-50 border-gray-300">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Tipo de Movimiento</label>
+        <select id="fis-tipo" onchange="adaptarFormFisico()" class="w-full text-xs border rounded p-1.5 bg-gray-50 border-gray-300 font-medium">
+          <option value="Transferencia_Interna" selected>Transferencia Interna</option>
+          <option value="Nacimiento">Nacimiento</option>
+          <option value="Muerte">Muerte / Baja</option>
+          <option value="Cambio_Categoria">Cambio de Categoría</option>
+          <option value="Consumo_Propio">Consumo Propio / Granos</option>
+          <option value="Ingreso_Terceros">Ingreso Terceros (Capitalización / Hotelería)</option>
+          <option value="Egreso_Terceros">Egreso Terceros</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Categorías Origen y Destino -->
+    <!-- Selector de Especie Dinámica para filtrar Categorías -->
+    <div class="mb-2">
+      <label class="block text-xs font-semibold text-gray-600 mb-1">Especie / Unidad de Producción</label>
+      <select id="fis-especie" onchange="alCambiarEspecieFisico()" class="w-full text-xs border rounded p-1.5 bg-emerald-50 border-emerald-300 font-bold text-emerald-900">
+        <option value="Bovino" selected>Bovinos</option>
+        <option value="Porcino">Porcinos</option>
+        <option value="Ovino">Ovinos</option>
+      </select>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2" id="div-categorias">
+      <div id="div-cat-origen">
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Cat. Origen</label>
+        <select id="fis-cat-origen" class="w-full text-xs border rounded p-1.5 border-gray-300"></select>
+      </div>
+      <div id="div-cat-destino">
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Cat. Destino</label>
+        <select id="fis-cat-destino" class="w-full text-xs border rounded p-1.5 border-gray-300"></select>
+      </div>
+    </div>
+
+    <!-- Cantidades Físicas -->
+    <div class="grid grid-cols-2 gap-2" id="div-cantidades-animales">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Cabezas</label>
+        <input type="number" id="fis-cabezas" min="0" placeholder="0" class="w-full text-xs border rounded p-1.5 border-gray-300">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Peso Total (kg)</label>
+        <input type="number" id="fis-peso" min="0" placeholder="Ej: 8400" class="w-full text-xs border rounded p-1.5 border-gray-300">
+      </div>
+    </div>
+
+    <!-- Campos específicos para Alimento Propio -->
+    <div id="div-alimento" class="hidden p-2.5 bg-amber-50 rounded border border-amber-200">
+      <label class="block text-xs font-semibold text-amber-800 mb-1">Insumo Propio Transferido</label>
+      <select id="fis-insumo" class="w-full text-xs border rounded p-1.5 mb-2 border-amber-300 bg-white">
+        <option value="Maíz Grano Propio (kg)">Maíz Grano Propio (kg)</option>
+        <option value="Alfalfa Rollos Propios (unid)">Alfalfa Rollos Propios (unid)</option>
+        <option value="Alfalfa Silo/Fardos (kg)">Alfalfa Silo/Fardos (kg)</option>
+      </select>
+      <label class="block text-xs font-semibold text-amber-800 mb-1">Cantidad Física Consumida</label>
+      <input type="number" id="fis-cant-insumo" placeholder="Ej: 5000 kg o 25 rollos" class="w-full text-xs border rounded p-1.5 border-amber-300 bg-white">
+    </div>
+
+    <!-- Sector y Caravana -->
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Sector / Lote</label>
+        <select id="fis-sector" class="w-full text-xs border rounded p-1.5 border-gray-300"></select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Caravana RFID</label>
+        <input type="text" id="fis-caravana" placeholder="Opcional trazabilidad" class="w-full text-xs border rounded p-1.5 border-gray-300">
+      </div>
+    </div>
+
+    <!-- Causa de Muerte -->
+    <div id="div-muerte" class="hidden">
+      <label class="block text-xs font-semibold text-red-600 mb-1">Causa de Mortandad</label>
+      <input type="text" id="fis-causa-muerte" placeholder="Ej: Neumonía, timpanismo, etc." class="w-full text-xs border rounded p-1.5 border-red-300 bg-red-50">
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-gray-600 mb-1">Observaciones</label>
+      <input type="text" id="fis-obs" placeholder="Detalle de pesaje o potrero" class="w-full text-xs border rounded p-1.5 border-gray-300">
+    </div>
+
+    <button type="submit" class="btn-submit w-full bg-emerald-800 hover:bg-emerald-700 text-white font-semibold py-2 rounded text-xs transition duration-150 flex items-center justify-center gap-1 shadow-sm">
+      <span>💾</span> Guardar Hecho Físico
+    </button>
+  </form>
+
+  <!-- ===================================================================== -->
+  <!-- 2. FORMULARIO ALTA DE CARAVANA (TRAZABILIDAD EN EXISTENCIAS) -->
+  <!-- ===================================================================== -->
+  <form id="form-caravana" class="card-form hidden space-y-3 bg-white p-3 rounded-lg shadow-xs border border-gray-100" style="display: none;" onsubmit="enviarCaravana(event)">
+    <div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded text-xs text-emerald-800">
+      <span class="font-bold">🏷️ Alta Individual de Hacienda:</span> Registra un nuevo animal en la hoja <span class="font-mono font-semibold">EXISTENCIAS</span> con su caravana y peso inicial. Al guardar, te dirigirá automáticamente a registrar sus costos.
+    </div>
+
+    <div class="grid grid-cols-3 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Fecha de Registro</label>
+        <input type="date" id="car-fecha" required class="w-full text-xs border rounded p-1.5 bg-gray-50 border-gray-300">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Código de Caravana</label>
+        <input type="text" id="car-caravana" required placeholder="Ej: A976 o 1042" class="w-full text-xs border rounded p-1.5 border-gray-300 uppercase font-mono font-bold text-emerald-900">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-emerald-800 mb-1">Unidad Productiva</label>
+        <select id="car-unidad" onchange="cambiarUnidadProductivaCaravana(this.value)" class="w-full text-xs border rounded p-1.5 border-emerald-500 font-bold text-emerald-900 bg-emerald-50">
+          <option value="Bovino" selected>Bovino</option>
+          <option value="Porcino">Porcino</option>
+          <option value="Ovino">Ovino</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Categoría Inicial</label>
+        <select id="car-categoria" class="w-full text-xs border rounded p-1.5 border-gray-300 bg-white">
+          <option value="Terneros" selected>Terneros</option>
+          <option value="Terneras">Terneras</option>
+          <option value="Novillitos">Novillitos</option>
+          <option value="Novillos">Novillos</option>
+          <option value="Vaquillonas 1">Vaquillonas 1</option>
+          <option value="Vaquillonas 2">Vaquillonas 2</option>
+          <option value="Vacas">Vacas</option>
+          <option value="Vacas Secas">Vacas Secas</option>
+          <option value="Vacas Prenadas">Vacas Prenadas</option>
+          <option value="Toros">Toros</option>
+          <option value="Toritos">Toritos</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Subunidad Inicial</label>
+        <select id="car-subunidad" class="w-full text-xs border rounded p-1.5 border-gray-300 bg-white">
+          <option value="Cria" selected>Cria</option>
+          <option value="Recria">Recria</option>
+          <option value="Adaptacion">Adaptacion</option>
+          <option value="Engorde">Engorde</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-gray-600 mb-1">Peso Inicial (kg)</label>
+      <input type="number" step="0.1" min="0" id="car-peso-inicial" placeholder="Ej: 35.0 (nacer) o 180.0 (ingreso)" required class="w-full text-xs border rounded p-1.5 border-gray-300">
+      <p class="text-[10px] text-gray-500 mt-0.5">El Peso Actual y la Etapa se actualizarán dinámicamente con las pesadas de Movimientos_Existencia.</p>
+    </div>
+
+    <button type="submit" class="btn-submit w-full bg-emerald-800 hover:bg-emerald-700 text-white font-semibold py-2 rounded text-xs transition duration-150 flex items-center justify-center gap-1 shadow-sm">
+      <span>🏷️</span> Registrar Caravana en EXISTENCIAS
+    </button>
+  </form>
+
+  <!-- ===================================================================== -->
+  <!-- 3. FORMULARIO REGISTRO DE COSTOS / INSUMOS POR ANIMAL (Movimientos_Existencia) -->
+  <!-- ===================================================================== -->
+  <form id="form-costos" class="card-form hidden space-y-3 bg-white p-3 rounded-lg shadow-xs border border-gray-100" style="display: none;" onsubmit="enviarCosto(event)">
+    <div class="bg-amber-50 border border-amber-200 p-2.5 rounded text-xs text-amber-900">
+      <span class="font-bold">💰 Costos por Caravana:</span> Al imputar costos con valor &gt; 0, el sistema registra el evento en <span class="font-mono font-semibold">Movimientos_Existencia</span> y se sincroniza automáticamente en <span class="font-mono font-semibold">TABLA_IMPUTACION</span> bajo <span class="font-semibold">Produccion Propia Campo</span>.
+    </div>
+
+    <!-- ID y Fecha de Registro -->
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">ID Registro</label>
+        <input type="text" id="cos-id" value="Auto (Correlativo)" disabled class="w-full text-xs border rounded p-1.5 bg-gray-100 border-gray-200 text-gray-500 font-mono text-center">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Fecha Registro</label>
+        <input type="date" id="cos-fecha-reg" required onchange="alCambiarFechaCosto()" class="w-full text-xs border rounded p-1.5 bg-gray-50 border-gray-300">
+      </div>
+    </div>
+
+    <!-- Caravana, Unidad Productiva y Fecha Nacimiento -->
+    <div class="grid grid-cols-3 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Caravana (Activas)</label>
+        <select id="cos-caravana" required onchange="alCambiarCaravanaCosto()" class="w-full text-xs border rounded p-1.5 border-gray-300 font-mono font-bold text-emerald-900">
+          <option value="">-- Seleccionar --</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-emerald-800 mb-1">Unidad Prod.</label>
+        <input type="text" id="cos-unidad-produccion" readonly placeholder="Especie" class="w-full text-xs border rounded p-1.5 bg-emerald-50 border-emerald-300 text-emerald-900 font-bold text-center">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">F. Nacimiento</label>
+        <input type="text" id="cos-fecha-nac" readonly placeholder="AAAA-MM-DD" class="w-full text-xs border rounded p-1.5 bg-gray-100 border-gray-200 text-gray-600 text-center">
+      </div>
+    </div>
+
+    <!-- Categoría y Etapa / Subunidad dinámica -->
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Categoría</label>
+        <input type="text" id="cos-categoria" readonly placeholder="Desde Existencias" class="w-full text-xs border rounded p-1.5 bg-gray-100 border-gray-200 text-gray-700">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Etapa Productiva</label>
+        <input type="text" id="cos-etapa" readonly placeholder="Auto s/peso" class="w-full text-xs border rounded p-1.5 bg-emerald-50 border-emerald-300 text-emerald-800 font-bold text-center">
+      </div>
+    </div>
+
+    <!-- Pesos: Estimado y Real -->
+    <div class="bg-gray-50 p-2.5 rounded border border-gray-200">
+      <div class="flex justify-between items-center mb-1">
+        <label class="text-xs font-semibold text-gray-700">Control de Pesos (kg)</label>
+        <span id="cos-info-dias" class="text-[10px] text-gray-500">0 días de vida</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">Peso Estimado KG</label>
+          <input type="number" step="0.1" id="cos-peso" required oninput="alModificarPesoManual()" class="w-full text-xs border rounded p-1.5 border-gray-300 font-bold text-gray-800 text-right" placeholder="0.0">
+          <p class="text-[9px] text-gray-500 mt-0.5">Proyectado s/días y ganancia diaria.</p>
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-emerald-800 mb-0.5">Peso Real KG (Balanza)</label>
+          <input type="number" step="0.1" min="0" id="cos-peso-real" class="w-full text-xs border rounded p-1.5 border-emerald-400 bg-emerald-50/50 font-bold text-emerald-900 text-right" placeholder="Opcional (si se pesó)">
+          <p class="text-[9px] text-emerald-700 mt-0.5">Dejar vacío si no hubo pesaje en balanza.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Concepto de Costo -->
+    <div>
+      <label class="block text-xs font-semibold text-gray-600 mb-1">Concepto Costo (Hoja COSTOS)</label>
+      <select id="cos-concepto" required onchange="alCambiarConceptoCosto()" class="w-full text-xs border rounded p-1.5 border-gray-300 text-xs">
+        <option value="">-- Seleccionar Concepto --</option>
+      </select>
+    </div>
+
+    <!-- Unidad, Costo Unitario y Cantidad -->
+    <div class="grid grid-cols-3 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Unidad</label>
+        <input type="text" id="cos-unidad" readonly class="w-full text-xs border rounded p-1.5 bg-gray-100 border-gray-200 text-gray-600 text-center">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Unit. ($)</label>
+        <input type="number" step="0.01" id="cos-costo-unit" required oninput="alCambiarCantidadOTotal()" class="w-full text-xs border rounded p-1.5 border-gray-300 text-right" placeholder="0.00">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Cantidad</label>
+        <input type="number" step="0.01" id="cos-cantidad" required oninput="alCambiarCantidadOTotal()" class="w-full text-xs border rounded p-1.5 border-gray-300 text-center font-bold" placeholder="1.00">
+      </div>
+    </div>
+
+    <!-- Costo Total Calculado -->
+    <div class="bg-emerald-50 p-2.5 rounded border border-emerald-200 flex justify-between items-center text-xs">
+      <span class="font-semibold text-emerald-800">Costo Total:</span>
+      <span id="cos-total-badge" class="font-bold text-sm text-emerald-900">$ 0.00</span>
+    </div>
+
+    <!-- Observaciones -->
+    <div>
+      <label class="block text-xs font-semibold text-gray-600 mb-1">Observaciones</label>
+      <input type="text" id="cos-obs" placeholder="Detalle adicional del costo o insumo" class="w-full text-xs border rounded p-1.5 border-gray-300">
+    </div>
+
+    <button type="submit" class="btn-submit w-full bg-emerald-800 hover:bg-emerald-700 text-white font-semibold py-2 rounded text-xs transition duration-150 flex items-center justify-center gap-1 shadow-sm">
+      <span>💾</span> Registrar Costo en Movimientos_Existencia
+    </button>
+  </form>
+
+  <!-- ===================================================================== -->
+  <!-- 4. FORMULARIO OPERACIÓN COMERCIAL -->
+  <!-- ===================================================================== -->
+  <form id="form-comercial" class="card-form hidden space-y-3 bg-white p-3 rounded-lg shadow-xs border border-gray-100" style="display: none;" onsubmit="enviarComercial(event)">
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Fecha</label>
+        <input type="date" id="com-fecha" required class="w-full text-xs border rounded p-1.5 border-gray-300 bg-gray-50">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Operación</label>
+        <select id="com-tipo" onchange="calcularTotalesComerciales()" class="w-full text-xs border rounded p-1.5 border-gray-300 font-bold text-emerald-900">
+          <option value="Venta" selected>Venta</option>
+          <option value="Compra">Compra</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Selector de Unidad de Negocio (UN-BOV, UN-POR, UN-MAIZ, UN-SOJA) -->
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Unidad de Negocio</label>
+        <select id="com-un" onchange="alCambiarUNComercial()" class="w-full text-xs border rounded p-1.5 border-gray-300 font-bold text-emerald-900">
+          <option value="UN-BOV" selected>UN-BOV (Bovinos)</option>
+          <option value="UN-POR">UN-POR (Porcinos)</option>
+          <option value="UN-MAIZ">UN-MAIZ (Granos Maíz)</option>
+          <option value="UN-SOJA">UN-SOJA (Granos Soja)</option>
+        </select>
+      </div>
+      <div id="div-com-categoria">
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Categoría</label>
+        <select id="com-categoria" class="w-full text-xs border rounded p-1.5 border-gray-300"></select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Cliente / Proveedor</label>
+        <select id="com-contacto" class="w-full text-xs border rounded p-1.5 border-gray-300" required></select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">N° Comprobante / Liq.</label>
+        <input type="text" id="com-comprobante" placeholder="Ej: LIQ-00481" class="w-full text-xs border rounded p-1.5 border-gray-300" required>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Cabezas</label>
+        <input type="number" id="com-cabezas" min="0" placeholder="0" class="w-full text-xs border rounded p-1.5 border-gray-300" required>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Kilos Totales</label>
+        <input type="number" id="com-kilos" min="0" placeholder="0" oninput="calcularTotalesComerciales()" class="w-full text-xs border rounded p-1.5 border-gray-300" required>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Precio $/kg</label>
+        <input type="number" id="com-precio" step="0.01" placeholder="$ 0" oninput="calcularTotalesComerciales()" class="w-full text-xs border rounded p-1.5 border-gray-300" required>
+      </div>
+    </div>
+
+    <!-- Deducciones y Posición Fiscal -->
+    <div class="bg-gray-50 p-2.5 rounded border border-gray-200 space-y-2">
+      <div class="flex justify-between items-center text-xs">
+        <span class="text-gray-600">Subtotal Bruto Económico:</span>
+        <span id="txt-bruto" class="font-bold text-gray-900">$ 0.00</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block text-[11px] text-gray-600">Gastos Comerciales (Flete/Comisión)</label>
+          <input type="number" id="com-gastos" step="0.01" placeholder="0" oninput="calcularTotalesComerciales()" class="w-full text-xs border rounded p-1 border-gray-300">
+        </div>
+        <div>
+          <label class="block text-[11px] text-gray-600">Retenciones Sufridas</label>
+          <input type="number" id="com-retenciones" step="0.01" placeholder="0" oninput="calcularTotalesComerciales()" class="w-full text-xs border rounded p-1 border-gray-300">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block text-[11px] text-gray-600">Alícuota IVA</label>
+          <select id="com-alicuota" onchange="calcularTotalesComerciales()" class="w-full text-xs border rounded p-1 border-gray-300">
+            <option value="0.105">10.5% (Hacienda viva)</option>
+            <option value="0.21">21.0% (Granos / General)</option>
+          </select>
+        </div>
+        <div class="flex flex-col justify-end">
+          <span class="text-[11px] text-gray-600">IVA Fiscal:</span>
+          <span id="txt-iva" class="text-xs font-semibold text-emerald-800">$ 0.00</span>
+        </div>
+      </div>
+      <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+        <span class="font-bold text-xs text-gray-800">Total Financiero Liquidación:</span>
+        <span id="txt-total-neto" class="font-bold text-sm text-emerald-900">$ 0.00</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Condición</label>
+        <select id="com-condicion" class="w-full text-xs border rounded p-1.5 border-gray-300">
+          <option value="Cuenta Corriente" selected>Cuenta Corriente</option>
+          <option value="Contado">Contado</option>
+          <option value="Canje Grano">Canje Grano</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Estado de Pago</label>
+        <select id="com-estado" class="w-full text-xs border rounded p-1.5 border-gray-300">
+          <option value="Cobrado" selected>Cobrado</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="Cancelado">Cancelado</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit w-full bg-emerald-800 hover:bg-emerald-700 text-white font-semibold py-2 rounded text-xs transition duration-150 flex items-center justify-center gap-1 shadow-sm">
+      <span>💾</span> Guardar Operación Comercial
+    </button>
+  </form>
+
+  <!-- ===================================================================== -->
+  <!-- 5. FORMULARIO MOVIMIENTO FINANCIERO -->
+  <!-- ===================================================================== -->
+  <form id="form-financiero" class="card-form hidden space-y-3 bg-white p-3 rounded-lg shadow-xs border border-gray-100" style="display: none;" onsubmit="enviarFinanciero(event)">
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Fecha</label>
+        <input type="date" id="fin-fecha" required class="w-full text-xs border rounded p-1.5 border-gray-300 bg-gray-50">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Flujo</label>
+        <select id="fin-tipo" class="w-full text-xs border rounded p-1.5 border-gray-300 font-bold text-emerald-900">
+          <option value="Cobro">Cobro (Entrada de Dinero)</option>
+          <option value="Pago">Pago (Salida de Dinero)</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-gray-600 mb-1">Contacto / Tercero</label>
+      <select id="fin-contacto" class="w-full text-xs border rounded p-1.5 border-gray-300" required></select>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Importe Efectivo ($)</label>
+        <input type="number" id="fin-importe" step="0.01" placeholder="$ 0.00" class="w-full text-xs border rounded p-1.5 border-gray-300" required>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Cuenta Fondos</label>
+        <select id="fin-cuenta" class="w-full text-xs border rounded p-1.5 border-gray-300" required></select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">N° Comprobante Asoc.</label>
+        <input type="text" id="fin-comprobante" placeholder="Ej: LIQ-00481 / FC-12" class="w-full text-xs border rounded p-1.5 border-gray-300">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Medio de Pago</label>
+        <select id="fin-medio" class="w-full text-xs border rounded p-1.5 border-gray-300">
+          <option value="Transferencia" selected>Transferencia Bancaria</option>
+          <option value="Efectivo">Efectivo</option>
+          <option value="Cheque Diferido">Cheque Diferido</option>
+          <option value="Vale de Campo">Vale de Campo</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-gray-600 mb-1">Observaciones</label>
+      <input type="text" id="fin-obs" placeholder="Detalle de transacción" class="w-full text-xs border rounded p-1.5 border-gray-300">
+    </div>
+
+    <button type="submit" class="btn-submit w-full bg-emerald-800 hover:bg-emerald-700 text-white font-semibold py-2 rounded text-xs transition duration-150 flex items-center justify-center gap-1 shadow-sm">
+      <span>💾</span> Registrar Flujo de Fondos
+    </button>
+  </form>
+
+  <!-- ===================================================================== -->
+  <!-- 6. FORMULARIO TABLA DE IMPUTACIÓN (GASTOS - 9 COLUMNAS) -->
+  <!-- ===================================================================== -->
+  <form id="form-gasto" class="card-form hidden space-y-3 bg-white p-3 rounded-lg shadow-xs border border-gray-100" style="display: none;" onsubmit="enviarGasto(event)">
+    <div class="bg-gray-50 border border-gray-200 p-2.5 rounded text-xs text-gray-700">
+      <span class="font-bold">📑 Imputación Contable:</span> Registra gastos directamente en <span class="font-mono font-semibold">TABLA_IMPUTACION</span> bajo las 9 columnas oficiales (Fecha, Comprobante, Proveedor, Concepto, Importe, UN, Etapa, Plano y Efecto).
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Fecha</label>
+        <input type="date" id="gas-fecha" required class="w-full text-xs border rounded p-1.5 border-gray-300 bg-gray-50">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">N° Comprobante</label>
+        <input type="text" id="gas-comprobante" placeholder="0001-00000556" class="w-full text-xs border rounded p-1.5 border-gray-300" required>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Proveedor</label>
+        <select id="gas-contacto" class="w-full text-xs border rounded p-1.5 border-gray-300" required></select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Concepto (CAT_CONCEPTOS)</label>
+        <select id="gas-concepto" class="w-full text-xs border rounded p-1.5 border-gray-300" required></select>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-gray-600 mb-1">Importe Total ($)</label>
+      <input type="number" id="gas-importe" step="0.01" placeholder="$ 0.00" class="w-full text-xs border rounded p-1.5 border-gray-300" required>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Unidad de Negocio</label>
+        <select id="gas-un" class="w-full text-xs border rounded p-1.5 border-gray-300 font-bold text-emerald-900"></select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Etapa Productiva</label>
+        <select id="gas-etapa" class="w-full text-xs border rounded p-1.5 border-gray-300 font-medium">
+          <option value="Cria">Cria</option>
+          <option value="Recria">Recria</option>
+          <option value="Adaptacion">Adaptacion</option>
+          <option value="Engorde" selected>Engorde</option>
+          <option value="Estructura">Estructura</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Plano Afectado</label>
+        <select id="gas-plano" class="w-full text-xs border rounded p-1.5 border-gray-300">
+          <option value="Resultado Economico" selected>Resultado Economico</option>
+          <option value="Activo / Existencias">Activo / Existencias</option>
+          <option value="Activo / Bienes de uso">Activo / Bienes de uso</option>
+          <option value="Credito Fiscal">Credito Fiscal</option>
+          <option value="Cuenta Corriente">Cuenta Corriente</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Efecto en Existencias</label>
+        <select id="gas-efecto" class="w-full text-xs border rounded p-1.5 border-gray-300">
+          <option value="Sin Efecto" selected>Sin Efecto</option>
+          <option value="Aumenta Stock Insumos">Aumenta Stock Insumos</option>
+          <option value="Disminuye Stock Hacienda">Disminuye Stock Hacienda</option>
+          <option value="Disminuye Stock Granos">Disminuye Stock Granos</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit w-full bg-emerald-800 hover:bg-emerald-700 text-white font-semibold py-2 rounded text-xs transition duration-150 flex items-center justify-center gap-1 shadow-sm">
+      <span>💾</span> Imputar Gasto a Unidad
+    </button>
+  </form>
+
+  <!-- ===================================================================== -->
+  <!-- 7. FORMULARIO LABORES DE CAMPO AGRICOLAS -->
+  <!-- ===================================================================== -->
+  <form id="form-campo" class="card-form hidden space-y-3 bg-white p-3 rounded-lg shadow-xs border border-gray-100" style="display: none;" onsubmit="enviarLaborCampo(event)">
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Fecha</label>
+        <input type="date" id="lab-fecha" required class="w-full text-xs border rounded p-1.5 bg-gray-50 border-gray-300">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Lote</label>
+        <select id="lab-lote" class="w-full text-xs border rounded p-1.5 bg-gray-50 border-gray-300">
+          <option value="Lote 1">Lote 1 (23 ha)</option>
+          <option value="Lote 2">Lote 2 (16 ha)</option>
+          <option value="Lote 4">Lote 4 (12.5 ha)</option>
+          <option value="Lote 5">Lote 5 (16.5 ha)</option>
+          <option value="Lote 6">Lote 6 (13.5 ha)</option>
+          <option value="Lote 7">Lote 7 (12.5 ha)</option>
+          <option value="Lote 8">Lote 8 (13 ha)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Superficie (Ha)</label>
+        <input type="number" step="0.1" id="lab-ha" required placeholder="Ej: 16.5" class="w-full text-xs border rounded p-1.5 border-gray-300">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Unidad de Negocio</label>
+        <select id="lab-un" class="w-full text-xs border rounded p-1.5 border-gray-300">
+          <option value="UN-MAIZ">UN-MAIZ - Maiz</option>
+          <option value="UN-SOJA">UN-SOJA - Soja</option>
+          <option value="UN-BOV">UN-BOV - Bovinos (Forraje)</option>
+          <option value="UN-ESTR">UN-ESTR - Estructura</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-gray-600 mb-1">Tipo de Labor</label>
+      <select id="lab-tipo" class="w-full text-xs border rounded p-1.5 border-gray-300">
+        <option value="Siembra" selected>Siembra</option>
+        <option value="Pulverizacion / Proteccion">Pulverizacion / Proteccion</option>
+        <option value="Fertilizacion">Fertilizacion</option>
+        <option value="Cosecha / Trilla">Cosecha / Trilla</option>
+        <option value="Rollos / Confeccion Forraje">Rollos / Confeccion Forraje</option>
+        <option value="Laboreo del suelo">Laboreo del suelo</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-gray-600 mb-1">Insumo / Producto / Variedad</label>
+      <input type="text" id="lab-insumo" required placeholder="Ej: Glifosato, Urea, Semilla AG 7004" class="w-full text-xs border rounded p-1.5 border-gray-300">
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Dosis por Ha</label>
+        <input type="number" step="0.01" id="lab-dosis" required placeholder="Ej: 2.5" class="w-full text-xs border rounded p-1.5 border-gray-300">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Unidad Medida Dosis</label>
+        <select id="lab-u-dosis" class="w-full text-xs border rounded p-1.5 border-gray-300">
+          <option value="lts/ha">lts/ha</option>
+          <option value="kg/ha">kg/ha</option>
+          <option value="gr/ha">gr/ha</option>
+          <option value="p/ha">p/ha</option>
+          <option value="rollos/ha">rollos/ha</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-gray-600 mb-1">Observaciones</label>
+      <textarea id="lab-obs" rows="2" placeholder="Detalle técnico de la aplicación..." class="w-full text-xs border rounded p-1.5 border-gray-300"></textarea>
+    </div>
+
+    <button type="submit" class="btn-submit w-full bg-emerald-800 hover:bg-emerald-700 text-white font-semibold py-2 rounded text-xs transition duration-150 flex items-center justify-center gap-1 shadow-sm">
+      <span>🌾</span> Guardar Labor de Campo
+    </button>
+  </form>
+
+  <!-- ===================================================================== -->
+  <!-- 8. FORMULARIO NUEVO CONTACTO -->
+  <!-- ===================================================================== -->
+  <form id="form-contacto" class="card-form hidden space-y-3 bg-white p-3 rounded-lg shadow-xs border border-gray-100" style="display: none;" onsubmit="enviarContacto(event)">
+    <div>
+      <label class="block text-xs font-semibold text-gray-600 mb-1">Razón Social / Nombre</label>
+      <input type="text" id="con-nombre" placeholder="Ej: Agropecuaria Don Carlos" class="w-full text-xs border rounded p-1.5 border-gray-300" required>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Tipo</label>
+        <select id="con-tipo" class="w-full text-xs border rounded p-1.5 border-gray-300">
+          <option value="Proveedor">Proveedor</option>
+          <option value="Cliente">Cliente</option>
+          <option value="Consignatario Feria">Consignatario Feria</option>
+          <option value="Contratista">Contratista</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">CUIT / CUIL</label>
+        <input type="text" id="con-cuit" placeholder="30-xxxxxxxx-x" class="w-full text-xs border rounded p-1.5 border-gray-300">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Condición Pago</label>
+        <select id="con-pago" class="w-full text-xs border rounded p-1.5 border-gray-300">
+          <option value="Cuenta Corriente" selected>Cuenta Corriente</option>
+          <option value="Contado">Contado</option>
+          <option value="Canje Grano">Canje Grano</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Teléfono / Celular</label>
+        <input type="text" id="con-tel" placeholder="0358-154..." class="w-full text-xs border rounded p-1.5 border-gray-300">
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit w-full bg-emerald-800 hover:bg-emerald-700 text-white font-semibold py-2 rounded text-xs transition duration-150 flex items-center justify-center gap-1 shadow-sm">
+      <span>💾</span> Dar de Alta Contacto
+    </button>
+  </form>
+
+  <!-- JAVASCRIPT DEL CLIENTE -->
+  <script>
+    let catalogos = {};
+
+    // Catálogos dinámicos por especie para alta de caravanas y existencias
+    const CATALOGO_ESPECIES = {
+      Bovino: {
+        categorias: ['Terneros', 'Terneras', 'Novillitos', 'Novillos', 'Vaquillonas 1', 'Vaquillonas 2', 'Vacas', 'Vacas Secas', 'Vacas Prenadas', 'Toros', 'Toritos'],
+        subunidades: ['Cria', 'Recria', 'Adaptacion', 'Engorde']
+      },
+      Porcino: {
+        categorias: ['Madre', 'Padrillo', 'Lechón', 'Cachorro / Cachorra', 'Capón', 'Madre de descarte', 'Padrillo de descarte'],
+        subunidades: ['Cria', 'Destete', 'Engorde', 'Reproduccion']
+      },
+      Ovino: {
+        categorias: ['Madres', 'Carneros', 'Corderos', 'Borregas', 'Borregos', 'Ovino de Descarte'],
+        subunidades: ['Cria', 'Recria', 'Engorde/Venta', 'Reproduccion']
+      }
+    };
+
+    function cambiarUnidadProductivaCaravana(unidad) {
+      const cfg = CATALOGO_ESPECIES[unidad] || CATALOGO_ESPECIES['Bovino'];
+      const selCat = document.getElementById('car-categoria');
+      const selSub = document.getElementById('car-subunidad');
+
+      if (selCat) {
+        selCat.innerHTML = cfg.categorias.map((c, idx) => `<option value="${c}" ${idx === 0 ? 'selected' : ''}>${c}</option>`).join('');
+      }
+      if (selSub) {
+        selSub.innerHTML = cfg.subunidades.map((s, idx) => `<option value="${s}" ${idx === 0 ? 'selected' : ''}>${s}</option>`).join('');
+      }
+    }
+
+    let alertaTimer = null;
+
+    window.onload = function() {
+      // Garantizar que solo la pestaña inicial 'fisico' se muestre
+      cambiarPestana('fisico');
+      cambiarUnidadProductivaCaravana('Bovino');
+
+      // Establecer fecha de hoy en todos los inputs de fecha
+      const hoy = new Date().toISOString().split('T')[0];
+      ['fis-fecha', 'car-fecha', 'cos-fecha-reg', 'com-fecha', 'fin-fecha', 'gas-fecha', 'lab-fecha'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = hoy;
+      });
+
+      // Cargar catálogos desde el servidor si estamos en entorno Google Apps Script
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(llenarSelectores)
+          .withFailureHandler(err => mostrarAlerta('Error cargando catálogos: ' + err, 'error'))
+          .obtenerCatalogosParaFormulario();
+      } else {
+        console.info('Modo vista previa local: google.script.run no disponible.');
+      }
+    };
+
+    function llenarSelectores(data) {
+      catalogos = data;
+      
+      // Categorías Bovinos
+      const optCats = data.categorias.map(c => `<option value="${c.id}">${c.nombre} (${c.id})</option>`).join('');
+      document.getElementById('fis-cat-origen').innerHTML = optCats;
+      document.getElementById('fis-cat-destino').innerHTML = optCats;
+      alCambiarEspecieFisico();
+      alCambiarUnidadCaravana();
+      document.getElementById('com-categoria').innerHTML = optCats;
+      
+      // Contactos
+      const optCont = data.contactos.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+      document.getElementById('com-contacto').innerHTML = optCont;
+      document.getElementById('fin-contacto').innerHTML = optCont;
+
+      // Proveedores para Imputación (Nombre real, incluyendo Produccion Propia Campo)
+      const contactosProv = (data.contactos || []).map(c => c.nombre);
+      if (!contactosProv.includes('Produccion Propia Campo')) {
+        contactosProv.unshift('Produccion Propia Campo');
+      }
+      const optProv = contactosProv.map(nombre => `<option value="${nombre}">${nombre}</option>`).join('');
+      document.getElementById('gas-contacto').innerHTML = optProv;
+
+      // Sectores
+      const optSec = data.sectores.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('');
+      document.getElementById('fis-sector').innerHTML = optSec;
+
+      // Unidades de Negocio para Imputación (NOMBRES oficiales para validar con CAT_UNIDADES_NEGOCIO!B2:B8)
+      const optUN_Nombres = data.unidades.map(u => `<option value="${u.nombre}">${u.nombre}</option>`).join('');
+      document.getElementById('gas-un').innerHTML = optUN_Nombres;
+
+      // Conceptos de CAT_CONCEPTOS
+      const optConc = data.conceptos.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
+      document.getElementById('gas-concepto').innerHTML = optConc;
+
+      // Cuentas de fondos
+      const optCta = data.cuentas.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+      document.getElementById('fin-cuenta').innerHTML = optCta;
+
+      // Catálogos para el Formulario de Costos Individuales
+      poblarSelectoresCostos(data);
+    }
+
+    function cambiarPestana(p) {
+      const pestanas = ['fisico', 'caravana', 'costos', 'comercial', 'financiero', 'gasto', 'campo', 'contacto'];
+      pestanas.forEach(item => {
+        const formEl = document.getElementById(`form-${item}`);
+        const tabEl = document.getElementById(`tab-${item}`);
+        if (formEl) {
+          formEl.classList.add('hidden');
+          formEl.style.display = 'none';
+        }
+        if (tabEl) {
+          tabEl.classList.remove('active');
+        }
+      });
+      const targetForm = document.getElementById(`form-${p}`);
+      const targetTab = document.getElementById(`tab-${p}`);
+      if (targetForm) {
+        targetForm.classList.remove('hidden');
+        targetForm.style.display = 'flex';
+      }
+      if (targetTab) {
+        targetTab.classList.add('active');
+      }
+      ocultarAlerta();
+    }
+
+    function adaptarFormFisico() {
+      const tipo = document.getElementById('fis-tipo').value;
+      const divOrigen = document.getElementById('div-cat-origen');
+      const divDestino = document.getElementById('div-cat-destino');
+      const divMuerte = document.getElementById('div-muerte');
+      const divAlimento = document.getElementById('div-alimento');
+      const divCantAnimales = document.getElementById('div-cantidades-animales');
+
+      // Reset visibilidades
+      divOrigen.classList.remove('hidden');
+      divDestino.classList.remove('hidden');
+      divMuerte.classList.add('hidden');
+      divAlimento.classList.add('hidden');
+      divCantAnimales.classList.remove('hidden');
+
+      if (tipo === 'Nacimiento' || tipo === 'Ingreso_Terceros') {
+        divOrigen.classList.add('hidden');
+      } else if (tipo === 'Muerte' || tipo === 'Egreso_Terceros') {
+        divDestino.classList.add('hidden');
+        if (tipo === 'Muerte') divMuerte.classList.remove('hidden');
+      } else if (tipo === 'Consumo_Propio') {
+        divOrigen.classList.add('hidden');
+        divDestino.classList.add('hidden');
+        divCantAnimales.classList.add('hidden');
+        divAlimento.classList.remove('hidden');
+      }
+    }
+
+    function alCambiarUNComercial() {
+      const un = document.getElementById('com-un').value;
+      const divCat = document.getElementById('div-com-categoria');
+      const selCat = document.getElementById('com-categoria');
+
+      if (un === 'UN-BOV') {
+        divCat.classList.remove('opacity-40');
+        selCat.disabled = false;
+        selCat.required = true;
+      } else {
+        // Regla: si no es Bovinos, ID_Cat debe quedar vacío
+        divCat.classList.add('opacity-40');
+        selCat.disabled = true;
+        selCat.required = false;
+        selCat.value = '';
+      }
+    }
+
+    function calcularTotalesComerciales() {
+      const tipo = document.getElementById('com-tipo').value;
+      const kilos = parseFloat(document.getElementById('com-kilos').value) || 0;
+      const cabezas = parseFloat(document.getElementById('com-cabezas').value) || 0;
+      const precio = parseFloat(document.getElementById('com-precio').value) || 0;
+      const gastos = parseFloat(document.getElementById('com-gastos').value) || 0;
+      const retenciones = parseFloat(document.getElementById('com-retenciones').value) || 0;
+      const alicuota = parseFloat(document.getElementById('com-alicuota').value) || 0.105;
+
+      const bruto = kilos > 0 ? (kilos * precio) : (cabezas * precio);
+      const iva = (bruto - gastos) * alicuota;
+      
+      let neto = 0;
+      if (tipo === 'Venta') {
+        neto = bruto - gastos + iva - retenciones;
+      } else {
+        neto = bruto + iva + retenciones;
+      }
+
+      document.getElementById('txt-bruto').innerText = '$ ' + bruto.toLocaleString('es-AR', {minimumFractionDigits: 2});
+      document.getElementById('txt-iva').innerText = '$ ' + iva.toLocaleString('es-AR', {minimumFractionDigits: 2});
+      document.getElementById('txt-total-neto').innerText = '$ ' + neto.toLocaleString('es-AR', {minimumFractionDigits: 2});
+    }
+
+    function mostrarAlerta(msg, tipo) {
+      const el = document.getElementById('alerta');
+      if (!el) return;
+      el.innerText = msg;
+      el.classList.remove('hidden', 'alerta-exito', 'alerta-error', 'bg-green-100', 'text-green-800', 'border-green-300', 'bg-red-100', 'text-red-800', 'border-red-300');
+      el.style.display = 'block';
+      
+      if (tipo === 'exito') {
+        el.classList.add('alerta-exito', 'bg-green-100', 'text-green-800', 'border', 'border-green-300');
+      } else {
+        el.classList.add('alerta-error', 'bg-red-100', 'text-red-800', 'border', 'border-red-300');
+      }
+
+      if (alertaTimer) clearTimeout(alertaTimer);
+      if (tipo === 'exito') {
+        alertaTimer = setTimeout(() => { 
+          el.classList.add('hidden');
+          el.style.display = 'none';
+        }, 4500);
+      }
+    }
+
+    function ocultarAlerta() {
+      if (alertaTimer) clearTimeout(alertaTimer);
+      const el = document.getElementById('alerta');
+      if (el) {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+      }
+    }
+
+    // Funciones de control de doble clic (Debounce)
+    function bloquearBoton(form) {
+      const btn = form.querySelector('button[type="submit"]');
+      if (!btn) return null;
+      btn.dataset.originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.classList.add('opacity-50', 'cursor-not-allowed');
+      btn.innerHTML = '<span>⏳</span> Guardando...';
+      return btn;
+    }
+
+    function desbloquearBoton(btn) {
+      if (!btn) return;
+      btn.disabled = false;
+      btn.classList.remove('opacity-50', 'cursor-not-allowed');
+      if (btn.dataset.originalText) {
+        btn.innerHTML = btn.dataset.originalText;
+      }
+    }
+
+    // =========================================================================
+    // ENVÍO DE FORMULARIOS AL SERVIDOR CON PROTECCIÓN ANTI-DUPLICADOS
+    // =========================================================================
+
+    function enviarFisico(e) {
+      e.preventDefault();
+      const form = document.getElementById('form-fisico');
+      const btn = bloquearBoton(form);
+
+      const payload = {
+        fecha: document.getElementById('fis-fecha').value,
+        tipo: document.getElementById('fis-tipo').value,
+        idCatOrigen: document.getElementById('fis-cat-origen').value,
+        idCatDestino: document.getElementById('fis-cat-destino').value,
+        cabezas: document.getElementById('fis-cabezas').value,
+        pesoEstimado: document.getElementById('fis-peso').value,
+        idSector: document.getElementById('fis-sector').value,
+        caravana: document.getElementById('fis-caravana').value,
+        insumoAsociado: document.getElementById('fis-insumo').value,
+        cantidadInsumo: document.getElementById('fis-cant-insumo').value,
+        causaMuerte: document.getElementById('fis-causa-muerte').value,
+        observaciones: document.getElementById('fis-obs').value
+      };
+
+      google.script.run
+        .withSuccessHandler(res => {
+          desbloquearBoton(btn);
+          if (res.exito) {
+            mostrarAlerta(res.mensaje, 'exito');
+            form.reset();
+            document.getElementById('fis-fecha').value = new Date().toISOString().split('T')[0];
+            adaptarFormFisico();
+          } else {
+            mostrarAlerta(res.mensaje, 'error');
+          }
+        })
+        .withFailureHandler(err => {
+          desbloquearBoton(btn);
+          mostrarAlerta('Error: ' + err, 'error');
+        })
+        .registrarMovimientoFisico(payload);
+    }
+
+    function enviarComercial(e) {
+      e.preventDefault();
+      const form = document.getElementById('form-comercial');
+      const btn = bloquearBoton(form);
+
+      const unVal = document.getElementById('com-un').value;
+      const catVal = (unVal === 'UN-BOV') ? document.getElementById('com-categoria').value : '';
+
+      const payload = {
+        fecha: document.getElementById('com-fecha').value,
+        tipoOperacion: document.getElementById('com-tipo').value,
+        idUn: unVal,
+        idCat: catVal,
+        idContacto: document.getElementById('com-contacto').value,
+        comprobante: document.getElementById('com-comprobante').value,
+        cabezas: document.getElementById('com-cabezas').value,
+        kilos: document.getElementById('com-kilos').value,
+        precioUnitario: document.getElementById('com-precio').value,
+        gastosComerciales: document.getElementById('com-gastos').value,
+        retenciones: document.getElementById('com-retenciones').value,
+        alicuotaIva: document.getElementById('com-alicuota').value,
+        condicionVenta: document.getElementById('com-condicion').value,
+        estadoPago: document.getElementById('com-estado').value
+      };
+
+      google.script.run
+        .withSuccessHandler(res => {
+          desbloquearBoton(btn);
+          if (res.exito) {
+            mostrarAlerta(res.mensaje, 'exito');
+            form.reset();
+            document.getElementById('com-fecha').value = new Date().toISOString().split('T')[0];
+            alCambiarUNComercial();
+            calcularTotalesComerciales();
+          } else {
+            mostrarAlerta(res.mensaje, 'error');
+          }
+        })
+        .withFailureHandler(err => {
+          desbloquearBoton(btn);
+          mostrarAlerta('Error: ' + err, 'error');
+        })
+        .registrarMovimientoComercial(payload);
+    }
+
+    function enviarFinanciero(e) {
+      e.preventDefault();
+      const form = document.getElementById('form-financiero');
+      const btn = bloquearBoton(form);
+
+      const payload = {
+        fecha: document.getElementById('fin-fecha').value,
+        tipo: document.getElementById('fin-tipo').value,
+        idContacto: document.getElementById('fin-contacto').value,
+        importe: document.getElementById('fin-importe').value,
+        idCuenta: document.getElementById('fin-cuenta').value,
+        idMovCom: document.getElementById('fin-comprobante').value,
+        medioPago: document.getElementById('fin-medio').value,
+        observaciones: document.getElementById('fin-obs').value
+      };
+
+      google.script.run
+        .withSuccessHandler(res => {
+          desbloquearBoton(btn);
+          if (res.exito) {
+            mostrarAlerta(res.mensaje, 'exito');
+            form.reset();
+            document.getElementById('fin-fecha').value = new Date().toISOString().split('T')[0];
+          } else {
+            mostrarAlerta(res.mensaje, 'error');
+          }
+        })
+        .withFailureHandler(err => {
+          desbloquearBoton(btn);
+          mostrarAlerta('Error: ' + err, 'error');
+        })
+        .registrarMovimientoFinanciero(payload);
+    }
+
+    function enviarGasto(e) {
+      e.preventDefault();
+      const form = document.getElementById('form-gasto');
+      const btn = bloquearBoton(form);
+
+      const payload = {
+        fecha: document.getElementById('gas-fecha').value,
+        comprobante: document.getElementById('gas-comprobante').value,
+        proveedor: document.getElementById('gas-contacto').value,
+        concepto: document.getElementById('gas-concepto').value,
+        importe: document.getElementById('gas-importe').value,
+        idUn: document.getElementById('gas-un').value,
+        etapaProductiva: document.getElementById('gas-etapa').value,
+        planoAfectado: document.getElementById('gas-plano').value,
+        efectoExistencias: document.getElementById('gas-efecto').value
+      };
+
+      google.script.run
+        .withSuccessHandler(res => {
+          desbloquearBoton(btn);
+          if (res.exito) {
+            mostrarAlerta(res.mensaje, 'exito');
+            form.reset();
+            document.getElementById('gas-fecha').value = new Date().toISOString().split('T')[0];
+          } else {
+            mostrarAlerta(res.mensaje, 'error');
+          }
+        })
+        .withFailureHandler(err => {
+          desbloquearBoton(btn);
+          mostrarAlerta('Error: ' + err, 'error');
+        })
+        .registrarImputacionGasto(payload);
+    }
+
+    function enviarLaborCampo(e) {
+      e.preventDefault();
+      const form = document.getElementById('form-campo');
+      const btn = bloquearBoton(form);
+
+      const payload = {
+        fecha: document.getElementById('lab-fecha').value,
+        lote: document.getElementById('lab-lote').value,
+        superficieHa: document.getElementById('lab-ha').value,
+        idUn: document.getElementById('lab-un').value,
+        tipoLabor: document.getElementById('lab-tipo').value,
+        insumoProducto: document.getElementById('lab-insumo').value,
+        dosisPorHa: document.getElementById('lab-dosis').value,
+        unidadDosis: document.getElementById('lab-u-dosis').value,
+        unidadTotal: document.getElementById('lab-u-dosis').value.split('/')[0],
+        observaciones: document.getElementById('lab-obs').value
+      };
+
+      google.script.run
+        .withSuccessHandler(res => {
+          desbloquearBoton(btn);
+          if (res.exito) {
+            mostrarAlerta(res.mensaje, 'exito');
+            form.reset();
+            document.getElementById('lab-fecha').value = new Date().toISOString().split('T')[0];
+          } else {
+            mostrarAlerta(res.mensaje, 'error');
+          }
+        })
+        .withFailureHandler(err => {
+          desbloquearBoton(btn);
+          mostrarAlerta('Error: ' + err, 'error');
+        })
+        .registrarLaborCampo(payload);
+    }
+
+    function enviarContacto(e) {
+      e.preventDefault();
+      const form = document.getElementById('form-contacto');
+      const btn = bloquearBoton(form);
+
+      const payload = {
+        razonSocial: document.getElementById('con-nombre').value,
+        tipoContacto: document.getElementById('con-tipo').value,
+        cuit: document.getElementById('con-cuit').value,
+        condicionPago: document.getElementById('con-pago').value,
+        telefono: document.getElementById('con-tel').value
+      };
+
+      google.script.run
+        .withSuccessHandler(res => {
+          desbloquearBoton(btn);
+          if (res.exito) {
+            mostrarAlerta(res.mensaje, 'exito');
+            form.reset();
+            // Refrescar selectores de contactos en todos los formularios
+            google.script.run.withSuccessHandler(llenarSelectores).obtenerCatalogosParaFormulario();
+          } else {
+            mostrarAlerta(res.mensaje, 'error');
+          }
+        })
+        .withFailureHandler(err => {
+          desbloquearBoton(btn);
+          mostrarAlerta('Error: ' + err, 'error');
+        })
+        .registrarNuevoContacto(payload);
+    }
+
+    function enviarCaravana(e) {
+      e.preventDefault();
+      const caravana = (document.getElementById('car-caravana').value || '').trim().toUpperCase();
+      if (!caravana) {
+        mostrarAlerta('Debe ingresar el código de la caravana', 'error');
+        return;
+      }
+
+      const form = document.getElementById('form-caravana');
+      const btn = bloquearBoton(form);
+
+      const payload = {
+        fechaRegistro: document.getElementById('car-fecha').value,
+        caravana: caravana,
+        unidadProduccion: document.getElementById('car-unidad').value,
+        categoria: document.getElementById('car-categoria').value,
+        subunidad: document.getElementById('car-subunidad').value,
+        pesoInicial: document.getElementById('car-peso-inicial').value
+      };
+
+      google.script.run
+        .withSuccessHandler(res => {
+          desbloquearBoton(btn);
+          if (res.exito) {
+            form.reset();
+            document.getElementById('car-fecha').value = new Date().toISOString().split('T')[0];
+
+            // Pase fluido inteligente a la pestaña Costos con la caravana preseleccionada
+            google.script.run
+              .withSuccessHandler(data => {
+                llenarSelectores(data);
+                cambiarPestana('costos');
+                const selCar = document.getElementById('cos-caravana');
+                if (selCar) {
+                  selCar.value = caravana;
+                  alCambiarCaravanaCosto();
+                  const selCos = document.getElementById('cos-concepto');
+                  if (selCos) selCos.focus();
+                }
+                mostrarAlerta(`✔ Caravana ${caravana} registrada con éxito. Lista para cargar su primer pesaje o costo.`, 'exito');
+              })
+              .obtenerCatalogosParaFormulario();
+          } else {
+            mostrarAlerta(res.mensaje, 'error');
+          }
+        })
+        .withFailureHandler(err => {
+          desbloquearBoton(btn);
+          mostrarAlerta('Error: ' + err, 'error');
+        })
+        .guardarNuevaCaravana(payload);
+    }
+
+    // =========================================================================
+    // LÓGICA Y EVENTOS DEL FORMULARIO DE COSTOS POR ANIMAL (Movimientos_Existencia)
+    // =========================================================================
+    let catalogoCaravanas = [];
+    let catalogoCostosLista = [];
+    let tablaGananciaDiaria = {
+      'Bovino': { 'Cria': 0.55, 'Recria': 0.60, 'Adaptacion': 1.00, 'Engorde': 1.25 },
+      'Porcino': { 'Cria': 0.20, 'Destete': 0.48, 'Engorde': 0.85, 'Reproduccion': 0.00 },
+      'Ovino': { 'Cria': 0.23, 'Recria': 0.12, 'Engorde': 0.20, 'Reproduccion': 0.00 }
+    };
+
+    function poblarSelectoresCostos(data) {
+      if (data.caravanasActivas) {
+        catalogoCaravanas = data.caravanasActivas;
+        const optCar = ['<option value="">-- Seleccionar Caravana --</option>']
+          .concat(catalogoCaravanas.map(c => 
+            `<option value="${c.caravana}" data-up="${c.unidadProduccion || 'Bovino'}" data-nac="${c.fechaNacimiento || ''}" data-cat="${c.categoria || ''}" data-sub="${c.subunidad || ''}" data-pesoini="${c.pesoInicial || 0}" data-pesoest="${c.pesoEstimado || c.pesoActual || 0}" data-pesoreal="${(c.pesoReal !== null && c.pesoReal !== undefined && c.pesoReal !== '') ? c.pesoReal : ''}">${c.caravana} (${c.categoria || 'Sin Cat.'} - ${c.subunidad || 'Cría'})</option>`
+          )).join('');
+        const selCar = document.getElementById('cos-caravana');
+        if (selCar) selCar.innerHTML = optCar;
+      }
+
+      if (data.costosCatalogo) {
+        catalogoCostosLista = data.costosCatalogo;
+        const optCos = ['<option value="">-- Seleccionar Concepto --</option>']
+          .concat(catalogoCostosLista.map(k => 
+            `<option value="${k.concepto}" data-sub="${k.subunidad || ''}" data-unidad="${k.unidad || ''}" data-costo="${k.costoUnitario || 0}">${k.concepto} [${k.unidad || 'U'}] ($${k.costoUnitario})</option>`
+          )).join('');
+        const selCos = document.getElementById('cos-concepto');
+        if (selCos) selCos.innerHTML = optCos;
+      }
+
+      if (data.gananciasDiarias) {
+        tablaGananciaDiaria = data.gananciasDiarias;
+      }
+    }
+
+    function determinarEtapaPorPeso(peso, unidadProd, etapaActualDefault) {
+      const p = parseFloat(peso) || 0;
+      const up = (unidadProd || document.getElementById('cos-unidad-produccion')?.value || 'Bovino').toString().toLowerCase();
+
+      if (up.includes('porc')) {
+        if (etapaActualDefault && etapaActualDefault.toLowerCase().includes('reprod')) return 'Reproduccion';
+        if (p < 7) return 'Cria';
+        if (p < 30) return 'Destete';
+        return 'Engorde';
+      } else if (up.includes('ovin')) {
+        if (etapaActualDefault && etapaActualDefault.toLowerCase().includes('reprod')) return 'Reproduccion';
+        if (p < 26) return 'Cria';
+        if (p < 40) return 'Recria';
+        return 'Engorde';
+      } else {
+        // Bovinos
+        if (etapaActualDefault && etapaActualDefault.toLowerCase().includes('reprod')) return 'Reproduccion';
+        if (p < 140) return 'Cria';
+        if (p < 280) return 'Recria';
+        if (p < 315) return 'Adaptacion';
+        return 'Engorde';
+      }
+    }
+
+    function alCambiarCaravanaCosto() {
+      const selCar = document.getElementById('cos-caravana');
+      const val = (selCar.value || '').trim();
+      if (!val) {
+        const elUP = document.getElementById('cos-unidad-produccion');
+        if (elUP) elUP.value = '';
+        document.getElementById('cos-fecha-nac').value = '';
+        document.getElementById('cos-categoria').value = '';
+        document.getElementById('cos-etapa').value = '';
+        document.getElementById('cos-peso').value = '';
+        document.getElementById('cos-peso-real').value = '';
+        document.getElementById('cos-peso-real').placeholder = 'Opcional (si se pesó)';
+        document.getElementById('cos-info-dias').innerText = '0 días de vida';
+        alCambiarCantidadOTotal();
+        return;
+      }
+
+      const opt = selCar.options[selCar.selectedIndex];
+      const unidadProd = opt.dataset.up || 'Bovino';
+      const fechaNac = opt.dataset.nac || '';
+      const categoria = opt.dataset.cat || '';
+      const subunidad = opt.dataset.sub || 'Cria';
+      const pesoIni = parseFloat(opt.dataset.pesoini) || 35.0;
+      const pesoRealUltimo = opt.dataset.pesoreal ? parseFloat(opt.dataset.pesoreal) : null;
+
+      const elUP = document.getElementById('cos-unidad-produccion');
+      if (elUP) elUP.value = unidadProd;
+
+      document.getElementById('cos-fecha-nac').value = fechaNac;
+      document.getElementById('cos-categoria').value = categoria;
+      document.getElementById('cos-peso-real').value = '';
+      document.getElementById('cos-peso-real').placeholder = pesoRealUltimo ? `Último real: ${pesoRealUltimo} kg` : 'Opcional (si se pesó)';
+
+      recalcularProyeccionAnimal(pesoIni, fechaNac, subunidad, unidadProd);
+      if (document.getElementById('cos-concepto').value) {
+        alCambiarConceptoCosto();
+      }
+    }
+
+    function alCambiarFechaCosto() {
+      const selCar = document.getElementById('cos-caravana');
+      if (!selCar || !selCar.value) return;
+      const opt = selCar.options[selCar.selectedIndex];
+      const fechaNac = opt.dataset.nac || '';
+      const subunidad = opt.dataset.sub || 'Cria';
+      const pesoIni = parseFloat(opt.dataset.pesoini) || 35.0;
+      const unidadProd = opt.dataset.up || 'Bovino';
+
+      recalcularProyeccionAnimal(pesoIni, fechaNac, subunidad, unidadProd);
+      if (document.getElementById('cos-concepto').value) {
+        alCambiarConceptoCosto();
+      }
+    }
+
+    function recalcularProyeccionAnimal(pesoIni, fechaNacStr, subunidadBase, unidadProd) {
+      const fechaRegStr = document.getElementById('cos-fecha-reg').value;
+      if (!fechaNacStr || !fechaRegStr) return;
+
+      const dNac = new Date(fechaNacStr + 'T00:00:00');
+      const dReg = new Date(fechaRegStr + 'T00:00:00');
+      let dias = 0;
+      if (!isNaN(dNac.getTime()) && !isNaN(dReg.getTime())) {
+        const diff = dReg.getTime() - dNac.getTime();
+        dias = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+      }
+
+      const upKey = (unidadProd || 'Bovino').toString().trim();
+      let tablaEspecie = tablaGananciaDiaria[upKey];
+      if (!tablaEspecie) {
+        const upLower = upKey.toLowerCase();
+        if (upLower.includes('porc')) tablaEspecie = tablaGananciaDiaria['Porcino'];
+        else if (upLower.includes('ovin')) tablaEspecie = tablaGananciaDiaria['Ovino'];
+        else tablaEspecie = tablaGananciaDiaria['Bovino'] || tablaGananciaDiaria;
+      }
+
+      let gd = 0.55;
+      if (tablaEspecie) {
+        gd = tablaEspecie[subunidadBase] !== undefined ? tablaEspecie[subunidadBase] : (tablaEspecie['Cria'] || 0.55);
+      }
+
+      const pesoCalculado = Math.round((pesoIni + (dias * gd)) * 10) / 10;
+      const etapaActual = determinarEtapaPorPeso(pesoCalculado, upKey, subunidadBase);
+
+      document.getElementById('cos-info-dias').innerText = `${dias} días de vida (GD: ${gd} kg/d)`;
+      document.getElementById('cos-peso').value = pesoCalculado;
+      document.getElementById('cos-etapa').value = etapaActual;
+    }
+
+    function alModificarPesoManual() {
+      const p = parseFloat(document.getElementById('cos-peso').value) || 0;
+      const up = document.getElementById('cos-unidad-produccion')?.value || 'Bovino';
+      document.getElementById('cos-etapa').value = determinarEtapaPorPeso(p, up);
+      const unidad = (document.getElementById('cos-unidad').value || '').toLowerCase();
+      if (unidad.includes('kg por peso')) {
+        document.getElementById('cos-cantidad').value = p;
+        alCambiarCantidadOTotal();
+      }
+    }
+
+    
+    function filtrarCategoriasPorEspecie(especie) {
+      if (!catalogos || !catalogos.categorias) return [];
+      const esp = (especie || 'Bovino').toLowerCase();
+      if (esp.includes('porc')) {
+        return catalogos.categorias.filter(c => c.id.toUpperCase().startsWith('CAT_POR') || (c.extra && c.extra.toLowerCase().includes('porc')));
+      } else if (esp.includes('ovin')) {
+        return catalogos.categorias.filter(c => c.id.toUpperCase().startsWith('CAT-OVIN') || c.id.toUpperCase().startsWith('CAT_OVI') || (c.extra && c.extra.toLowerCase().includes('ovin')));
+      } else {
+        return catalogos.categorias.filter(c => c.id.toUpperCase().startsWith('CAT_BOV') || (!c.id.toUpperCase().startsWith('CAT_POR') && !c.id.toUpperCase().startsWith('CAT-OVIN') && !c.id.toUpperCase().startsWith('CAT_OVI')));
+      }
+    }
+
+    function alCambiarEspecieFisico() {
+      const esp = document.getElementById('fis-especie') ? document.getElementById('fis-especie').value : 'Bovino';
+      const catsFiltradas = filtrarCategoriasPorEspecie(esp);
+      const opt = catsFiltradas.map(c => `<option value="${c.id}">${c.nombre} (${c.id})</option>`).join('');
+      if (document.getElementById('fis-cat-origen')) document.getElementById('fis-cat-origen').innerHTML = opt;
+      if (document.getElementById('fis-cat-destino')) document.getElementById('fis-cat-destino').innerHTML = opt;
+    }
+
+    function alCambiarUnidadCaravana() {
+      const up = document.getElementById('car-unidad-produccion') ? document.getElementById('car-unidad-produccion').value : 'Bovino';
+      const catsFiltradas = filtrarCategoriasPorEspecie(up);
+      const opt = catsFiltradas.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
+      const selectCat = document.getElementById('car-categoria');
+      if (selectCat) {
+        selectCat.innerHTML = opt;
+      }
+    }
+
+    function alCambiarConceptoCosto() {
+      const selCos = document.getElementById('cos-concepto');
+      if (!selCos || !selCos.value) {
+        document.getElementById('cos-unidad').value = '';
+        document.getElementById('cos-costo-unit').value = '';
+        document.getElementById('cos-cantidad').value = '1.00';
+        alCambiarCantidadOTotal();
+        return;
+      }
+
+      const opt = selCos.options[selCos.selectedIndex];
+      const unidad = opt.dataset.unidad || '';
+      const costoUnit = parseFloat(opt.dataset.costo) || 0;
+      const etapa = document.getElementById('cos-etapa').value || 'Cria';
+      const pesoActual = parseFloat(document.getElementById('cos-peso').value) || 0;
+      const fechaNacStr = document.getElementById('cos-fecha-nac').value;
+      const fechaRegStr = document.getElementById('cos-fecha-reg').value;
+
+      document.getElementById('cos-unidad').value = unidad;
+      document.getElementById('cos-costo-unit').value = costoUnit;
+
+      const uLower = unidad.trim().toLowerCase();
+      let cant = 1.0;
+
+      if (uLower === 'dosis') {
+        cant = 1.0;
+      } else if (uLower.includes('kg por peso') || uLower.includes('kilos por peso')) {
+        cant = pesoActual;
+      } else if (uLower.includes('(ms)') || uLower.includes('ms')) {
+        let dias = 0;
+        if (fechaNacStr && fechaRegStr) {
+          const dNac = new Date(fechaNacStr + 'T00:00:00');
+          const dReg = new Date(fechaRegStr + 'T00:00:00');
+          if (!isNaN(dNac.getTime()) && !isNaN(dReg.getTime())) {
+            dias = Math.max(0, Math.floor((dReg.getTime() - dNac.getTime()) / (1000 * 60 * 60 * 24)));
+          }
+        }
+        let factorMS = 4.50;
+        if (etapa === 'Recria') factorMS = 6.52;
+        else if (etapa === 'Adaptacion') factorMS = 3.80;
+        else if (etapa === 'Engorde') factorMS = 1.60;
+        else factorMS = 4.50;
+
+        cant = Math.round((dias * factorMS) * 100) / 100;
+      } else {
+        cant = 1.0;
+      }
+
+      document.getElementById('cos-cantidad').value = cant;
+      alCambiarCantidadOTotal();
+    }
+
+    function alCambiarCantidadOTotal() {
+      const cu = parseFloat(document.getElementById('cos-costo-unit').value) || 0;
+      const cant = parseFloat(document.getElementById('cos-cantidad').value) || 0;
+      const total = cu * cant;
+      document.getElementById('cos-total-badge').innerText = '$ ' + total.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    function enviarCosto(e) {
+      e.preventDefault();
+      const caravana = (document.getElementById('cos-caravana').value || '').trim();
+      const concepto = (document.getElementById('cos-concepto').value || '').trim();
+
+      if (!caravana) {
+        mostrarAlerta('Debe seleccionar una caravana activa de EXISTENCIAS', 'error');
+        return;
+      }
+      if (!concepto) {
+        mostrarAlerta('Debe seleccionar un concepto de costo', 'error');
+        return;
+      }
+
+      const form = document.getElementById('form-costos');
+      const btn = bloquearBoton(form);
+
+      const pesoRealVal = document.getElementById('cos-peso-real').value.trim();
+      const payload = {
+        fechaRegistro: document.getElementById('cos-fecha-reg').value,
+        caravana: caravana,
+        unidadProduccion: document.getElementById('cos-unidad-produccion') ? document.getElementById('cos-unidad-produccion').value : 'Bovino',
+        fechaNacimiento: document.getElementById('cos-fecha-nac').value,
+        pesoEstimado: document.getElementById('cos-peso').value,
+        pesoReal: pesoRealVal !== '' ? parseFloat(pesoRealVal) : '',
+        categoria: document.getElementById('cos-categoria').value,
+        etapa: document.getElementById('cos-etapa').value,
+        conceptoCosto: concepto,
+        unidad: document.getElementById('cos-unidad').value,
+        costoUnitario: document.getElementById('cos-costo-unit').value,
+        cantidad: document.getElementById('cos-cantidad').value,
+        observaciones: document.getElementById('cos-obs').value
+      };
+
+      google.script.run
+        .withSuccessHandler(res => {
+          desbloquearBoton(btn);
+          if (res.exito) {
+            mostrarAlerta(res.mensaje, 'exito');
+            form.reset();
+            document.getElementById('cos-id').value = 'Auto (Correlativo)';
+            document.getElementById('cos-fecha-reg').value = new Date().toISOString().split('T')[0];
+            document.getElementById('cos-peso-real').value = '';
+            document.getElementById('cos-peso-real').placeholder = 'Opcional (si se pesó)';
+            document.getElementById('cos-info-dias').innerText = '0 días de vida';
+            document.getElementById('cos-total-badge').innerText = '$ 0.00';
+            // Refrescar lista de caravanas para capturar el nuevo peso/etapa
+            google.script.run.withSuccessHandler(llenarSelectores).obtenerCatalogosParaFormulario();
+          } else {
+            mostrarAlerta(res.mensaje, 'error');
+          }
+        })
+        .withFailureHandler(err => {
+          desbloquearBoton(btn);
+          mostrarAlerta('Error: ' + err, 'error');
+        })
+        .guardarCostoMovimientoExistencia(payload);
+    }
+  </script>
+</body>
+</html>
